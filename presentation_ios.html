@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>我的故事 | My Story</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-light: #666;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+        
+        header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        header h1 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .progress-bar {
+            height: 3px;
+            background: #e0e0e0;
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        
+        .slide-page {
+            margin-bottom: 24px;
+            scroll-margin-top: 80px;
+        }
+        
+        .slide-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+            transition: transform 0.2s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        .card-cn {
+            border-left-color: #e74c3c;
+        }
+        
+        .card-en {
+            border-left-color: #3498db;
+        }
+        
+        .card-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        
+        .card-cn .card-label {
+            color: #e74c3c;
+        }
+        
+        .card-en .card-label {
+            color: #3498db;
+        }
+        
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .bullets {
+            margin-bottom: 16px;
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .bullets li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .bullets li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .speaking-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text);
+        }
+        
+        .speaking-text.collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 0.9rem;
+            padding: 8px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .nav-counter {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .quick-nav {
+            position: fixed;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 50;
+        }
+        
+        .quick-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .quick-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 400px) {
+            .card {
+                padding: 16px;
+            }
+            .card-title {
+                font-size: 1.05rem;
+            }
+            .speaking-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>我的故事 | My Story</h1>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+    </header>
+    
+    <div class="quick-nav" id="quickNav"></div>
+    
+    <div class="container" id="slides">
+        <!-- Slides will be injected here -->
+    </div>
+    
+    <nav class="nav-bar">
+        <button class="nav-btn" id="prevBtn">
+            ← 上一頁
+        </button>
+        <span class="nav-counter" id="counter">1 / 34</span>
+        <button class="nav-btn" id="nextBtn">
+            下一頁 →
+        </button>
+    </nav>
+
+    <script>
+    const slidesData = [
+        {
+            cn: {
+                title: "達拉斯的根與家庭",
+                bullets: ["在達拉斯出生長大", "三兄弟中排行老二", "父母穩定、勤勞", "家庭基礎很扎實"],
+                text: "我是德州達拉斯人。我的家庭很普通——沒什麼特別的，就是一個正常、穩定的家，有兩個兄弟。我排行老二：哥哥大我兩歲，弟弟小我三歲。我爸媽現在都過世了，但我們小時候，他們真的很努力工作，給我們打下很好的基礎。"
+            },
+            en: {
+                title: "Dallas Roots & Family",
+                bullets: ["Born and raised in Dallas", "Middle of three brothers", "Stable, hardworking parents", "Strong family foundation"],
+                text: "So, I'm from Dallas, Texas. I grew up in a pretty typical American family — nothing fancy, just a normal, stable home with two brothers. I'm the middle one: my older brother is two years older than me, and my younger brother is three years younger. My mom and dad have both passed away now, but when we were growing up, they worked really hard to give us a good foundation."
+            }
+        },
+        {
+            cn: {
+                title: "媽媽的價值觀與教育理念",
+                bullets: ["媽媽灌輸正確的價值觀", "強調做對的事、善待他人", "她的職涯讓她體會教育的重要", "教育＝避免被「框住」"],
+                text: "我媽在我們小時候是全職媽媽，她非常注重我們的品格——不惹麻煩、做對的事、好好對待別人。她也很重視教育。結婚前她當過醫檢師，就是比護理師低一級的那種。她那時候發現一件事：她做的工作跟護理師差不多，但薪水大概只有一半。這件事讓她印象很深。她體會到，不管你喜不喜歡，這個世界就是會獎勵高學歷的人，如果你沒有學位，就會被框住。所以她督促我們三兄弟都要念完書、上大學、拿到學位。"
+            },
+            en: {
+                title: "My Mom's Values & Education",
+                bullets: ["Mom instilled strong values", "Focus on doing right and treating people well", "Her career taught her the value of education", "Education = protection from being \"boxed in\""],
+                text: "My mom stayed home with us when we were young, and she was very focused on making sure we had the right values — staying out of trouble, doing the right thing, treating people well. She was also really big on education. Before she got married, she worked as a medical technologist, which is just one step below being a nurse. She realized something important back then: even though she did almost the same job as a nurse, she got paid about half as much. That really stuck with her. It taught her that, like it or not, the world rewards higher education, and if you don't have the degrees, you get boxed in. So she pushed all three of us boys to finish school, go to college, and get our degrees."
+            }
+        },
+        {
+            cn: {
+                title: "三兄弟，三個碩士",
+                bullets: ["三兄弟都拿到碩士", "我有兩個研究所學位", "全家都在科技業", "都念德州大學"],
+                text: "我們真的都做到了——三兄弟都有碩士學位。我拿了兩個：工程碩士和MBA。我們三個後來都進了科技業，大學都念德州大學工程系。"
+            },
+            en: {
+                title: "Three Brothers, Three Master's Degrees",
+                bullets: ["All three sons earned master's degrees", "My two graduate degrees", "Family strong in technology", "All attended University of Texas"],
+                text: "And we actually did — all three of us have master's degrees. I ended up with two: a master's in engineering and an MBA. And all three of us ended up in technology, and we all went to the University of Texas for engineering for our undergrad."
+            }
+        },
+        {
+            cn: {
+                title: "我爸與家庭晚餐時光",
+                bullets: ["爸爸重視陪伴和關係", "每天一起吃晚餐", "溫馨、輕鬆的聊天", "全家感情很好"],
+                text: "我爸呢，他最重視的是陪伴我們。他工作很忙，但總是會抽出時間，尤其是週末，而且我們每天都會全家一起吃晚餐。這是我最美好的回憶之一。晚餐時間我們會聊今天發生什麼事、學校的趣事、練習時發生什麼瘋狂的事。就是很溫暖、很放鬆的相處時光。"
+            },
+            en: {
+                title: "My Dad & Family Dinnertime",
+                bullets: ["Dad focused on time and relationships", "Family dinners every night", "Warm, relaxed conversations", "Deep bonding as a family"],
+                text: "My dad, on the other hand, was all about spending time with us. He worked hard, but he always made time, especially on weekends and we always ate dinner together as one family together. And one of my favorite memories is our family dinnertime. We always had dinner together, and it was fun — we'd talk about what happened during the day, school stories, whatever crazy things happened at practice. It was just a warm, relaxed time together."
+            }
+        },
+        {
+            cn: {
+                title: "從體操到游泳的轉折",
+                bullets: ["小時候學體操", "在夏令營看到很多傷患", "爸爸重新評估這項運動", "轉去學游泳"],
+                text: "我爸也鼓勵我們參加運動。小時候我們先學體操，學了一陣子，後來去參加一個體操夏令營。那個營隊是職業和大學體操選手辦的——結果每一個人身上都有傷。我是說，很嚴重的傷。看完之後，我爸就說：「好吧，這運動長期來看可能不太理想。」所以我們就離開體操，改學游泳。"
+            },
+            en: {
+                title: "From Gymnastics to a Big Decision",
+                bullets: ["Began childhood in gymnastics", "Saw many injuries at camp", "Dad reevaluated the sport", "Transitioned into swimming"],
+                text: "My dad also encouraged us to get involved in sports. When we were young, we started out in gymnastics. We actually did that for a while until we went to this gymnastics camp. The camp was run by professional and collegiate gymnastics athletes — and every single one of them had injuries. I mean, serious injuries. And after seeing that, my dad was like, \"Okay, maybe this isn't the greatest sport for the long run.\" So we stepped away from gymnastics and got into swimming."
+            }
+        },
+        {
+            cn: {
+                title: "游泳、訓練與晚餐時光",
+                bullets: ["游泳變成生活重心", "一天練兩次", "爸爸喜歡聽我們的進步", "沒有壓力——只有支持", "晚餐時間成了最愛的家庭時光"],
+                text: "游泳變成我們生活很重要的一部分。長大之後，我們一天練兩次——早上上學前游一次，下午晚餐前再游一次。這讓晚餐時間更有趣，因為我爸總是想聽練習怎麼樣。他從不給我們壓力，從不逼我們贏——他就是真心喜歡聽我們在做什麼、有什麼進步。那些對話是我成長過程中最美好的回憶。"
+            },
+            en: {
+                title: "Swimming, Training, and Dinnertime",
+                bullets: ["Swimming became central", "Two practices a day", "Dad loved hearing about our progress", "No pressure — just support", "Dinnertime became our favorite family time"],
+                text: "Swimming became a big part of our lives. As we got older, we were training twice a day — we'd swim in the morning before school and then again in the afternoon before dinner. And that made dinnertime even more fun because my dad always wanted to hear how practice went. He never pressured us, never pushed us to win or anything like that — he just genuinely enjoyed hearing what we were doing and how we were progressing. Those conversations were some of my favorite memories growing up."
+            }
+        },
+        {
+            cn: {
+                title: "比賽、第三名策略與漢堡王傳統",
+                bullets: ["爸爸真的很愛看游泳比賽", "我的目標一直是第三名", "爸爸幫我想策略", "很棒的父子時光", "賽後獎勵：漢堡王華堡＋香草奶昔"],
+                text: "有趣的是，我爸真的超愛看游泳比賽。很多家長覺得游泳比賽很無聊——你要坐好幾個小時，就為了看幾分鐘的比賽——但他超級喜歡。他喜歡看我們游，甚至也喜歡看別人家的小孩游。對我來說，我的目標不是第一名或第二名，我只在乎第三名，因為我們俱樂部有超級厲害的選手，後來還拿了奧運金牌。贏他們基本上不可能。所以第三名就是我的「金牌」，反正獎牌大小一樣——只是顏色不同。\n\n所以我爸把這件事變得很好玩。比賽前，他會看秩序冊然後說：「好，你現在排第四。這三個比較快，但這個人你最有機會贏。如果你能超過他，你就能拿到第三名。」這就像是我們父子倆的小戰略會議。他不是在逼我——他只是在幫我達成我真正在乎的目標。這讓整個比賽對我們兩個都很好玩。\n\n每次游泳比賽結束後，我們可以選任何想吃的餐廳。這對我們來說超級重要，因為平常不能吃垃圾食物。幾乎每次我們都選漢堡王。對小孩來說，能吃華堡配香草奶昔——沒有人會問東問西——感覺就是世界上最棒的獎勵。"
+            },
+            en: {
+                title: "Swim Meets, Third Place Strategy & Burger King Tradition",
+                bullets: ["Dad genuinely loved swim meets", "I always aimed for third place", "Dad helped me strategize", "Fun father–son bonding", "Post-meet treat: Burger King Whopper + vanilla shake"],
+                text: "And the funny thing is, my dad genuinely loved swim meets. A lot of parents find swim meets boring — you sit for hours for a few minutes of actual racing — but he absolutely loved them. He loved watching us swim, and he even enjoyed watching all the other families' kids swim too. And for me, I wasn't aiming for first place or second place. I only cared about getting third place, because in my club we had these incredibly fast swimmers who later became Olympic gold medalists. Beating them was basically impossible. So third place was my \"gold medal,\" and the medal was the same size anyway — just a different color.\n\nSo my dad made it fun. Before my races, he would look at the heat sheet and say, \"Okay, you're seeded fourth. These three guys are faster, but this one right here is the one you probably have the best chance of beating. If you can get him, you'll get your third place.\" It was like our little father–son strategy session. He wasn't pushing me — he was just helping me reach the goal I actually cared about. And it made the whole experience really fun for both of us.\n\nAnd after every swim meet, we could pick anywhere we wanted to eat out. That was a big deal for us because we weren't normally allowed to eat junk food. And almost every time, we chose Burger King. For us as kids, getting a Whopper and a vanilla shake — no questions asked — felt like the greatest reward in the world."
+            }
+        },
+        {
+            cn: {
+                title: "高中與青少年全國賽",
+                bullets: ["游泳變得很認真", "三兄弟都進入青少年全國賽", "全國前24名", "重大里程碑與榮譽"],
+                text: "上高中之後，游泳變成我們生活中很重要的一部分。我們三兄弟都進了青少年全國賽，就是18歲以下游泳選手的全國錦標賽。要進去必須是全國該年齡層最快的24名選手之一，在游泳圈這是很大的事，能參加真的很光榮。"
+            },
+            en: {
+                title: "High School & Junior Nationals",
+                bullets: ["Swimming became serious", "All three qualified for Junior Nationals", "Top 24 in the nation", "Major milestone and honor"],
+                text: "When we got into high school, swimming became a really serious part of our lives. All three of us ended up qualifying for Junior Nationals, which is the national championship meet for swimmers under 18. To qualify you need to be among the fastest 24 swimmers in the country for an 18 and under athlete and that's a big deal in the swimming world, and it was a real honor to be able to compete there."
+            }
+        },
+        {
+            cn: {
+                title: "與奧運選手一起訓練",
+                bullets: ["和頂尖選手一起練", "兩個隊友後來成為奧運冠軍", "當時不知道他們會這麼厲害", "回想起來很不可思議"],
+                text: "高中的時候，我剛好跟兩個後來拿奧運金牌的人一起訓練。當然，那時候沒人知道——我們就是三個青少年每天在同一條水道裡游來游去。但回頭看，能跟未來的奧運冠軍一起訓練，真的很不可思議。"
+            },
+            en: {
+                title: "Training with Olympians",
+                bullets: ["Trained with elite swimmers", "Two teammates became Olympic champions", "Didn't realize their future success", "Incredible hindsight experience"],
+                text: "I also happened to train in high school with two guys who eventually became Olympic gold medalists. Of course, at the time, none of us knew that — we were just three teenagers swimming in the same lanes every day. But looking back, it's pretty incredible that I was training side-by-side with future Olympic champions."
+            }
+        },
+        {
+            cn: {
+                title: "大學游泳 vs 工程系",
+                bullets: ["爸爸研究過工程系＋游泳的組合", "訓練量對工程系學生太重", "務實評估游泳潛力", "平靜地離開競技游泳"],
+                text: "快要上大學的時候，情況有了變化。整個高中時期，我爸一直是我們最大的粉絲——為我們加油、支持我們、鼓勵我們享受游泳的樂趣。但到了要上大學的時候，他反而勸我們不要繼續。他做了一些研究，發現大學游泳選手，尤其是競爭型的校隊，一天要練大約五個小時。他說：「如果你要念工程系，哪來的五個小時？」很多一級校隊的游泳選手都不是工程系的，少數幾個是的話，基本上沒有任何空閒時間。他看不出這怎麼可能做到。\n\n說實話，我不介意。我愛游泳，但我也看得出我跟那些要參加成人全國賽——「真正的大人比賽」——的人之間的差距。他們的天賦和潛力是不同等級的。我知道我可以當個普通的大學游泳選手，也許還不錯，但我不可能打進全國前八或達到那個水準。所以那時候離開競技游泳，我完全可以接受。"
+            },
+            en: {
+                title: "College Swimming vs Engineering",
+                bullets: ["Dad researched engineering + swimming", "Training load too heavy for engineering major", "Realistic evaluation of swimming potential", "Peacefully stepped away from competition"],
+                text: "Right around the time we were getting ready for college, something changed. All the way through high school, my dad had been our biggest fan — cheering us on, supporting us, encouraging us to have fun with swimming. But when college came around, he actually discouraged us from continuing. He did some research and found that college swimmers, especially at competitive programs, train about five hours a day. And he said, \"If you're planning to major in engineering, where are you going to find an extra five hours every day?\" A lot of Division I swimmers aren't engineering majors, and the few who are basically have no free time. He just didn't see how it was physically possible.\n\nHonestly, I didn't mind. I loved swimming, but I could also see the difference in ability between me and the guys who were going to Senior Nationals — the \"big-boy nationals.\" They had a different level of talent and potential. I knew I could be an average college swimmer, maybe solid, but there was no way I'd ever break into the top eight nationally or do anything at that level. So I was fine stepping away from competitive swimming at that point."
+            }
+        },
+        {
+            cn: {
+                title: "德州大學 → 加州",
+                bullets: ["在德州大學念工程", "畢業後搬到加州", "在高科技業工作", "在洛杉磯拿到碩士"],
+                text: "我去了德州大學，在那裡過得很開心。畢業後，我到加州工作，同時在那邊念碩士——還是在高科技業。我在洛杉磯住了一陣子，很喜歡那裡；那是我人生中很有趣的一段時光。"
+            },
+            en: {
+                title: "University of Texas → California",
+                bullets: ["Studied engineering at UT", "Moved to California after graduation", "Worked in high-tech", "Earned master's degree in LA"],
+                text: "I went to the University of Texas and had a great time there. After graduating, I took a job in California and worked on my master's degree out there — still in high-tech. I lived in Los Angeles for a while, and I loved it; it was a really fun time in my life."
+            }
+        },
+        {
+            cn: {
+                title: "MBA＋CPA 與職涯轉型",
+                bullets: ["進修商業和會計", "拿到MBA和CPA", "工程＋會計的稀有組合", "塑造了未來的職涯"],
+                text: "後來，我決定深入商業領域，所以我拿了MBA，也考上了CPA。這個組合——工程加會計——很少見，最後它塑造了我的職涯。我後來開了自己的科技顧問公司，專門設計和導入ERP系統——企業資源規劃系統。"
+            },
+            en: {
+                title: "MBA + CPA & Career Shift",
+                bullets: ["Pursued business and accounting", "Earned MBA and CPA", "Rare engineering + accounting combo", "Shaped future career path"],
+                text: "Later on, I decided I wanted to go deeper into business, so I got an MBA and also became a CPA. That combination — engineering plus accounting — is pretty rare, and it ended up shaping my career. I eventually started my own technology consulting company where I designed and implemented ERP systems — enterprise resource planning systems."
+            }
+        },
+        {
+            cn: {
+                title: "一人當兩人用",
+                bullets: ["通常需要兩個顧問", "我同時處理商業和技術面", "專案更快、溝通更清楚", "客戶受惠於這種整合能力"],
+                text: "通常在這類專案裡，公司會請兩個人搭配：一個商業顧問和一個技術顧問。商業顧問懂會計和業務需求，技術顧問負責寫程式。我兩邊都能做，所以他們等於買一送一，但其實我還是收雙倍的價錢！不過對客戶的好處是時間和品質。什麼都不會在溝通中流失，而且專案速度快一倍，因為他們只需要跟一個人合作。而且當我在寫程式的時候，我能看到業務人員需要但說不出來的東西，我可以主動提出解決方案。這變成我的專長，因為技術顧問通常認不出這些，也沒辦法帶回去給業務客戶。"
+            },
+            en: {
+                title: "Two Consultants in One",
+                bullets: ["Usually two consultants needed", "I handled both business + technical sides", "Faster projects, clearer communication", "Clients benefited from combined skillset"],
+                text: "Normally in those projects, companies hire two people to work as pairs: a business consultant and a technical consultant together. The business consultant understands accounting and business requirements, and the technical consultant does the programming. I could do both so they got 2 for the price of 1 but actually I still charged the double rate! But the benefit for the customer is time and quality. Nothing got lost in translation, and projects went twice as fast because they only had to work with one person. And when I was inside the code, I could see possibilities that business people needed but didn't know how to articulate, and I could proactively recommend solutions. That became my specialty because that is not something a technical consultant would recognize or be able to bring back to the business customer."
+            }
+        },
+        {
+            cn: {
+                title: "探索亞洲",
+                bullets: ["去過中國、韓國、日本、台灣", "找一個海外居住的地方", "台灣感覺出乎意料地自然", "文化衝擊很小"],
+                text: "經營公司幾年後，我決定想去海外生活看看。我做了很多研究，也到處旅行——我去了中國、韓國、日本，最後來到台灣。在所有這些地方裡，台灣是我感覺最舒服的。對我來說幾乎沒有文化衝擊。跟美國比起來，我意外地感覺很自在，這在中國、日本或韓國都不是這樣。那些地方有很大的文化隔閡，但台灣就是感覺很輕鬆、很自然。"
+            },
+            en: {
+                title: "Exploring Asia",
+                bullets: ["Traveled China, Korea, Japan, Taiwan", "Looking for a place to live overseas", "Taiwan felt surprisingly natural", "Minimal culture shock"],
+                text: "After running my company for a several years, I decided I wanted to explore life overseas. I did a lot of research and traveled around the region — I went to China, Korea, Japan, and finally Taiwan. Out of all those places, Taiwan was where I felt the most comfortable. There was almost no culture shock for me here. Compared to the U.S., I felt surprisingly at home, which definitely wasn't the case in China, Japan, or Korea. Those places have big cultural gaps, but Taiwan just felt easy and natural."
+            }
+        },
+        {
+            cn: {
+                title: "為什麼台灣適合我",
+                bullets: ["有清楚的永久居留途徑", "穩定的長期環境", "其他國家限制較多", "台灣提供生活方式＋未來"],
+                text: "另一個重要因素是居留。在台灣，有一條清楚的永久居留途徑，我覺得這很重要。我不想一直辦簽證或住在一個沒有長期選項的地方。中國不提供永久居留。韓國非常困難。日本技術上可以，但也很難。台灣是唯一一個既有好的生活方式，又有實際可行的長期居留途徑的地方。"
+            },
+            en: {
+                title: "Why Taiwan Worked",
+                bullets: ["Clear path to permanent residency", "Stable long-term environment", "Other countries restrictive", "Taiwan offered lifestyle + future"],
+                text: "Another major factor was residency. In Taiwan, there's a clear path to permanent residency, and that's something I felt was important. I didn't want to be doing endless visa runs or living somewhere with no long-term option. China doesn't offer permanent residency. Korea makes it extremely difficult. Japan technically allows it, but it's also very difficult. Taiwan was the only place with both a good lifestyle fit and a realistic path to staying long-term."
+            }
+        },
+        {
+            cn: {
+                title: "在台北的十年",
+                bullets: ["在師大學中文", "拿到學位", "教英文（托福和成人）", "因為線上化趨勢，不穩定"],
+                text: "我一開始住在台北大約十年。我在師大學中文，也拿到學位。那段時間，我也當過英文老師。這比看起來難多了。我教過高中生、大學生和年輕的成人。很有趣，但我主要教托福，有很多考試準備的內容，教學上沒什麼空間做有趣的事。不過我也在師大教英文，那個比較開放。但即使在疫情之前，實體教學的需求就已經在萎縮了，因為很多都轉到線上。我意識到這不是一個穩定的長期方向，尤其是我需要在台灣工作滿五年才能申請居留。"
+            },
+            en: {
+                title: "Ten Years in Taipei",
+                bullets: ["Studied Chinese at NTNU", "Earned a degree", "Taught English (TOEFL & adults)", "Not stable long-term due to online shift"],
+                text: "I originally lived in Taipei for about ten years. I studied Chinese at NTNU and earned a degree there. During that time, I also worked for a while as an English teacher. That's harder than it looks. I taught high school and college students as well as young adults. It was fun but I mostly taught TOEFL which had a lot of exam prep for the students and there was not a lot of space in the teaching for fun stuff. However, I also taught English at NTNU which was a little more wide open. But even before COVID, the demand for in-person teaching was already shrinking because so much was moving online. I realized it wasn't a stable long-term direction, especially since I needed a total of five years of work in Taiwan to qualify for residency."
+            }
+        },
+        {
+            cn: {
+                title: "開投資公司",
+                bullets: ["需要五年台灣工作經歷", "全職教書一年半", "開投資公司三年半", "達到居留要求後關掉公司"],
+                text: "所以我在這裡開了公司——一家投資公司——經營了大約三年半。在那之前，我全職教書一年半。這樣加起來就有五年的工作經驗了。後來我不需要這家公司了，就把它關了。"
+            },
+            en: {
+                title: "Starting an Investment Company",
+                bullets: ["Needed 5 years of Taiwan work history", "Taught full-time 1.5 years", "Ran an investment company 3.5 years", "Closed company after residency requirement met"],
+                text: "So I started a business here — an investment company — and I ran that for about three and a half years. Before that, I taught full-time for a year and a half. That gave me the full five years of work experience I needed. Eventually I didn't need the company anymore, so I closed it."
+            }
+        },
+        {
+            cn: {
+                title: "搬到台南",
+                bullets: ["生活成本較低", "房價負擔得起", "買了房子並翻修", "生活步調更輕鬆"],
+                text: "之後，我決定搬到台南。這裡的生活輕鬆很多，生活成本明顯比較低。最大的原因之一是房子——在台北買房不太實際，但在台南可以。我很喜歡住在這裡。我買了這間房子，按照我想要的方式翻修。還有一些小地方要修，但大工程都完成了。"
+            },
+            en: {
+                title: "Moving to Tainan",
+                bullets: ["Lower cost of living", "Housing affordable", "Bought and remodeled a home", "Life pace easier"],
+                text: "After that, I decided to move to Tainan. Life here is much easier and the cost of living is noticeably lower. One of the biggest reasons was housing — buying a house in Taipei wasn't realistic, but in Tainan it was possible. And I've really enjoyed living here. I bought this house and remodeled it pretty much exactly the way I wanted. There are still small things left to fix, but the big work is done."
+            }
+        },
+        {
+            cn: {
+                title: "翻修的教訓",
+                bullets: ["認識了台灣的工程文化", "必須緊盯工人", "避免偷工減料", "有些地方做了兩次"],
+                text: "在這個過程中我學到很多。在台灣，如果你不緊盯工人，他們就會偷工減料，然後你還要再請別人來修。所以有些地方我做了兩次，但現在我對整個流程了解多了。不容易，但這是很好的學習經驗，我對最後的成果很滿意。"
+            },
+            en: {
+                title: "Renovation Lessons",
+                bullets: ["Learned Taiwan construction culture", "Must watch workers closely", "Avoid corner-cutting", "Redid some work twice"],
+                text: "I learned a lot during that process. In Taiwan, if you're not watching the workers closely, they'll cut corners, and then you end up having to hire someone else to come in and fix things. So I had to redo some parts twice, but now I understand the whole process much better. It wasn't easy, but it was a good learning experience, and I'm really happy with how everything turned out."
+            }
+        },
+        {
+            cn: {
+                title: "童年的信仰",
+                bullets: ["從小上主日學", "正面的教會環境", "大約10歲接受耶穌", "信仰感覺很自然"],
+                text: "你們可能對我的信仰經歷有興趣，那我就來分享一下。\n\n我小時候全家都上主日學。我們三兄弟都去，我其實很喜歡。我們有個好教會、好老師，環境很正面。我很小就接受耶穌為救主——大概十歲左右——大約是小學高年級或國中初期。"
+            },
+            en: {
+                title: "Childhood Faith",
+                bullets: ["Grew up in Sunday school", "Positive church environment", "Accepted Jesus around age 10", "Faith felt natural"],
+                text: "Now you might be interested in my Christian experience, so here goes with that.\n\nWhen I was a kid, my whole family went to Sunday school. All of us boys went, and I actually really liked it. We had a good church, good teachers, and it was just a positive environment. I accepted Jesus as my Savior when I was pretty young — maybe around ten years old — sometime in late elementary school or early middle school."
+            }
+        },
+        {
+            cn: {
+                title: "「為什麼不是每個人都相信？」",
+                bullets: ["小時候信仰感覺理所當然", "耶穌的愛感覺很自然", "震驚於別人不相信", "大開眼界的領悟"],
+                text: "對我來說，這完全是自然而然的。我一點都沒有掙扎。對我來說很明顯，耶穌愛我們、聖經是真的、跟隨祂是對的。我真的不懂為什麼不是每個人都這樣想。對我來說太清楚了：為什麼不是每個人都想當基督徒？為什麼不是每個人都愛耶穌？"
+            },
+            en: {
+                title: "\"Why Doesn't Everyone Believe?\"",
+                bullets: ["Faith felt obvious as a child", "Jesus' love felt natural", "Shocked when others didn't believe", "Eye-opening realization"],
+                text: "For me, it felt completely natural. I didn't struggle with it at all. It was obvious to me that Jesus loved us, the Bible was true, and following Him was the right thing to do. I honestly didn't understand why everyone didn't feel the same way. It seemed so clear to me: why wouldn't everybody want to be a Christian? Why wouldn't everyone love Jesus?"
+            }
+        },
+        {
+            cn: {
+                title: "長大後看到不同的信仰",
+                bullets: ["學校越大、越多元", "發現很多人不是基督徒", "困惑又驚訝", "高中、大學仍保持信仰"],
+                text: "但後來，小學畢業後到了更大的學校——學生更多、年紀更大——我開始注意到一件讓我驚訝的事。很多人根本不是基督徒。這真的讓我很震驚。我會想：「為什麼？為什麼你不愛耶穌？為什麼你不相信聖經？」對我來說真的很困惑。這是一個大開眼界的時刻，意識到人長大之後，不是每個人都有同樣的信仰或成長背景。\n\n整個高中我都有去教會。上大學之後還是有去，但大概只有一半的時間。畢業後搬到加州也是一樣——大概一半的時間會去教會。但後來我搬回達拉斯時，找到一間我真的很喜歡的教會。"
+            },
+            en: {
+                title: "Growing Up & Seeing Different Beliefs",
+                bullets: ["Bigger schools = more diversity", "Realized many weren't Christian", "Confusing and surprising", "Continued faith through high school and college"],
+                text: "But later, when I moved on to bigger schools after elementary — schools with more students and older kids — I started noticing something that surprised me. A lot of people weren't Christians at all. And that really shocked me. I would think, \"Why? Why don't you love Jesus? Why don't you believe the Bible?\" It was genuinely confusing for me. It was a real eye-opening moment, realizing that as people get older, not everyone believes the same way or grows up with the same background.\n\nI stayed involved in church all through high school. When I went to college, I still went, but only about half the time. The same was true after college when I moved to California — I went to church maybe half the time there too. But when I eventually moved back to Dallas, I found a church that I really loved."
+            }
+        },
+        {
+            cn: {
+                title: "改變我對聖經看法的牧師",
+                bullets: ["牧師講話很自然", "接地氣的教導風格", "聖經變得平易近人", "體會到聖經是給每個人的"],
+                text: "我很喜歡那間教會，因為那個牧師就是個普通人。他不是那種用「講道腔」的牧師。雖然是大教會，他講話的語氣很自然，就像在星巴克邊喝咖啡邊跟你一對一聊天一樣。他的風格很對我的胃口。\n\n而且那是第一次有牧師說了一句話，真正改變了我對信仰的看法。他說：「我們要一起讀聖經。但你不用等我——你可以自己讀。聖經是寫給普通人看得懂的。」這句話讓我很震撼，因為在那之前，我一直覺得聖經是要從牧師那裡學的。但他讓我意識到，你其實可以自己讀、自己弄懂。這對我來說太有道理了，我真的很感謝那間教會。"
+            },
+            en: {
+                title: "Pastor Who Changed My View of Scripture",
+                bullets: ["Pastor spoke naturally", "Down-to-earth teaching style", "Scripture made accessible", "Realized Bible is for everyone"],
+                text: "I loved that church because the pastor was just a normal guy. He wasn't a \"preacher voice\" kind of pastor. Even though it was a big church, he talked in a very natural tone, like he was just having a one-on-one conversation with you at Starbucks over a cup of coffee. His style clicked with me.\n\nAnd it was the first time a pastor ever said something that really changed how I saw my faith. He said, \"We're going to go through the Bible together. But you don't have to wait for me — you can read this on your own. The Bible was written so normal people could understand it.\" That struck me, because before that, I had always thought of the Bible as something you learn from a pastor. But he made me realize that you can actually read it yourself and figure things out directly. That made so much sense to me, and I really appreciated that church because of it."
+            }
+        },
+        {
+            cn: {
+                title: "傳福音訓練",
+                bullets: ["參加12週的訓練", "學習分享福音", "訓練＋實際外出", "需要兩個禱告夥伴"],
+                text: "後來，在同一間教會，我參加了一個傳福音訓練的課程。課程很長——大概十二週——好像每週聚會兩次。第一次聚會是兩三個小時的訓練。然後那週晚些時候，我們會實際出去跟人談話，但不是馬上開始。大概要到第六週才開始。他們確保我們訓練充足才讓我們出去。\n\n接下來要講的——關於我爸媽的故事——我會在下一部分說。"
+            },
+            en: {
+                title: "Evangelism Training",
+                bullets: ["Joined 12-week training", "Learned to share the gospel", "Training + practical outreach", "Required two prayer partners"],
+                text: "Later on, at that same church, I joined a program called evangelism training. It was a long program — maybe around twelve weeks — and I think we met twice a week. The first meeting each week was training for two or three hours. Then later in the week, we'd actually go out and talk to real people, but not right away. We didn't start doing that until maybe week six. They made sure we were well-trained before sending us out.\n\nI'm going to talk about the next part — the story about my mom and dad — in the next section."
+            }
+        },
+        {
+            cn: {
+                title: "聖靈帶領我找父母",
+                bullets: ["需要兩個禱告夥伴", "有很多朋友可以找", "聖靈強烈催促", "猶豫但順服"],
+                text: "在那個傳福音訓練課程裡，結果成為我經歷過最有意義的事之一。就像我說的，大概十二週，其中一個要求是每個人需要兩個禱告夥伴。我在教會有很多朋友可以找——這部分應該很簡單。但聖靈一直不放過我。祂不斷在我心裡催促，很強烈地，要我找我爸媽當禱告夥伴。\n\n我不想這麼做。感覺很尷尬、很奇怪。我一直抗拒，但聖靈就一直推、一直推，最後我說：「好吧，好——我去。」"
+            },
+            en: {
+                title: "Holy Spirit Leads Me to My Parents",
+                bullets: ["Needed two prayer partners", "Many friends available", "Strong prompting from Holy Spirit", "Hesitated but obeyed"],
+                text: "When I was in that evangelism training program, it turned out to be one of the most interesting and meaningful experiences I'd ever had. Like I said, it was about twelve weeks long, and one of the requirements was that each person needed two prayer partners. I had plenty of friends at church I could've asked — that part should've been easy. But the Holy Spirit wouldn't leave me alone. He kept pressing on my heart, very heavily, that I needed to ask my mom and dad to be my prayer partners.\n\nI didn't want to do it. It felt awkward and weird. I kept resisting, but the Holy Spirit just kept pushing and pushing until finally I said, \"Okay, fine — I'll do it.\""
+            }
+        },
+        {
+            cn: {
+                title: "爸媽答應加入",
+                bullets: ["爸爸起初猶豫", "媽媽比較開放", "開始每週查經", "用我已經很熟的小冊子"],
+                text: "所以我問了他們。讓我意外的是，我爸沒有馬上說好。我以為他會，但他卻說：「我不知道。讓我想一想。」反而是我媽比較開放。每週日做完禮拜後我會去達拉斯他們家吃午餐——這是我們的慣例——我問了他們之後，我媽說：「嗯，我們為什麼不試試？說不定會學到什麼。」她說完之後，我爸也同意了：「好吧。好。」\n\n所以我們開始了。我建議用一本我很喜歡的小本查經手冊，我們教會小組剛讀完，所以我很熟。我說：「我們一週讀一章就好。如果一週讀不完一章，沒關係——我們就聚會大約一小時，用輕鬆的步調。」他們同意了。\n\n所以我們開始聚會。我們一起讀經，我帶討論，最後一起禱告。意外的是，我媽比我爸更願意開口禱告。我爸不太開口禱告——他會默禱，我跟他說這樣也可以。"
+            },
+            en: {
+                title: "My Parents Agree to Join",
+                bullets: ["Dad hesitated at first", "Mom was open", "Began weekly Bible study", "Used a booklet I already knew well"],
+                text: "So I asked them. And to my surprise, my dad didn't immediately say yes. I expected he would, but instead he said, \"I don't know. Let me think about it.\" My mom was the one who responded more openly. Every Sunday after church I would go to their house in Dallas and have lunch with them — that was our routine — and after I asked them, my mom said, \"Well, why don't we do it? Maybe we'll learn something.\" After she said that, my dad agreed too: \"Okay. All right.\"\n\nSo we began. And I suggested using a small Bible study booklet that I had really enjoyed that we just finished with my church bible study group so I was very familiar with it. I said, \"Let's just go through one chapter a week. If we don't finish the whole chapter in one week, that's fine — we'll just meet for about an hour and go at an easy pace.\" They agreed.\n\nSo we started meeting. We would read Scripture together, I would guide the discussion, and at the end we would pray together. Surprisingly, my mom was more eager to pray out loud than my dad. My dad didn't really pray out loud — he would pray silently, and I told him that was fine."
+            }
+        },
+        {
+            cn: {
+                title: "發現爸爸不再相信",
+                bullets: ["爸爸已經離開信仰", "有自己的想法", "媽媽不確定，在中間", "重要的屬靈對話"],
+                text: "但沒多久我就發現一件我完全沒想到的事：我爸不再相信聖經了。我超級震驚。我一直以為他還是相信的。我完全不知道他已經離開信仰了。當我問他的時候，他說他有自己的想法和理論。\n\n我媽比較中間。她從小是天主教徒，有很紮實的訓練，但她不確定現在該相信什麼。我爸絕對不相信福音——他不相信救恩必須透過耶穌，也不相信耶穌在十字架上的犧牲是必要的。他相信你可以直接向神禱告就能被赦免。我媽不確定——但她在思考。"
+            },
+            en: {
+                title: "Discovering My Dad's Unbelief",
+                bullets: ["Dad had drifted from faith", "Had his own ideas", "Mom unsure, in the middle", "Important spiritual conversations"],
+                text: "But it didn't take long before I realized something I never expected: my dad didn't believe in the Bible anymore. I was stunned. I had grown up assuming he still believed. I had no idea that he had drifted away from faith. And when I asked him about it, he said he had developed his own ideas and theories.\n\nMy mom was sort of in the middle. She had grown up Catholic, so she had strong training, but she wasn't sure what to believe anymore. My dad definitely didn't believe in the gospel — he didn't believe that salvation had to come through Jesus, or that Jesus' sacrifice on the cross was necessary. He believed you could just pray directly to God and be forgiven. My mom wasn't sure — but she was thinking about it."
+            }
+        },
+        {
+            cn: {
+                title: "「承擔代價」",
+                bullets: ["罪有代價", "一定要有人承擔", "「承擔」是關係性的用詞", "用羽球社的例子"],
+                text: "有一件事幫助了她，就是罪有代價，而且一定要有人承擔這個代價。她說這講得通。帳不平就是不平，除非有人付清。我其實比較喜歡說「承擔代價」而不是「付出代價」。「付出代價」聽起來很冷——太像會計用語。「承擔代價」聽起來比較有關係性。像是出於善意或愛而做的事。\n\n就像我的羽球社——當羽毛球漲價的時候，我不會說「我付了這個代價」。那聽起來很機械。我會說「我承擔了這個代價」，意思是我為了朋友付了差額。我是出於選擇、自由意志、體貼和善意來承擔的。這就是耶穌為我們做的事的一個縮影——祂為我們承擔了代價。"
+            },
+            en: {
+                title: "\"Absorbing the Cost\"",
+                bullets: ["Sin has a cost", "Someone must absorb it", "\"Absorb\" is relational", "Example from badminton club"],
+                text: "One thing that helped her was the idea that sin has a cost, and somebody has to absorb that cost. She said that made sense. The accounts don't balance unless someone pays. I actually like using the expression \"absorb the cost\" rather than \"pay the cost.\" \"Pay the cost\" sounds cold — too accounting-based. \"Absorb the cost\" sounds relational. It sounds like something you do out of kindness or love.\n\nLike in my badminton club — when the price of shuttlecocks increased, I didn't say, \"I paid the cost.\" That sounds mechanical. Instead, I say, \"I absorbed the cost,\" meaning I paid the difference for the sake of my friends. I absorbed it out of choice, free will, consideration, and kindness. And that's a picture of what Jesus did — He absorbed the cost for us."
+            }
+        },
+        {
+            cn: {
+                title: "救恩的問題",
+                bullets: ["查經手冊引到關鍵問題", "「你信靠耶穌為救主嗎？」", "爸爸說不", "媽媽意外地說是"],
+                text: "好，回到故事。我們最後讀到查經手冊裡問這個問題的地方：\n「你是否已經到了一個地步，信靠耶穌為你的救主？」\n\n我知道我爸不會。但我不確定我媽會怎樣。然後，在我還沒說什麼之前，我媽開口說：「我想這麼做。」\n\n我嚇了一跳。我有點緊張，因為我想確保我帶領得正確——禱告說對。但我們一起禱告了，她接受了基督。\n\n但故事還沒結束。還有另一部分，我會在下一段講。"
+            },
+            en: {
+                title: "The Question of Salvation",
+                bullets: ["Study booklet led to key question", "\"Do you trust Jesus as Savior?\"", "Dad said no", "Mom surprisingly said yes"],
+                text: "Anyway, back to the story. We eventually reached the part in the Bible study booklet where it asked the question:\n\"Have you come to the point where you trust Jesus to be your Savior?\"\n\nI knew my dad wouldn't. But I wasn't sure about my mom. And then, before I even said anything, my mom spoke up and said, \"I want to do it.\"\n\nI was taken by surprise. I got a little nervous because I wanted to make sure I guided her properly — that I said the prayer the right way. But we prayed together, and she accepted Christ.\n\nBut the story doesn't end there. There's another part, which I'll talk about in the next section."
+            }
+        },
+        {
+            cn: {
+                title: "媽媽的病",
+                bullets: ["接受基督後兩年", "得了重病", "一個月內過世", "非常創傷的時期"],
+                text: "很奇妙的是，我媽接受基督沒多久就到了生命的盡頭。幾乎難以置信，但大約在她做了那個禱告的兩年後，她病得很重。她進出醫院，然後在病重後大約一個月內，她就過世了。\n\n那是很創傷的時期。我記得我爸打電話給我說：「你要來醫院。你媽走了。」他整個人崩潰了。我到的時候，護士把我拉到旁邊說：「你媽媽在這間房間裡。你想待多久都可以。」"
+            },
+            en: {
+                title: "My Mom's Illness",
+                bullets: ["Two years after accepting Christ", "Became seriously ill", "Passed away within a month", "Very traumatic time"],
+                text: "What's really amazing is that my mom accepted Christ not long before the end of her life. It's almost hard to believe, but about two years after she prayed that prayer, she became very sick. She went in and out of the hospital, and then within about a month of getting seriously ill, she passed away.\n\nIt was a traumatic time. I remember my dad calling me and saying, \"You need to come to the hospital. Your mom died.\" He was completely torn up. When I arrived, the nurse took me aside and said, \"Your mom is in this room. You can stay with her as long as you want.\""
+            }
+        },
+        {
+            cn: {
+                title: "獨自在病房裡",
+                bullets: ["獨自進入房間", "開始禱告", "意外的遭遇", "一個聲音充滿全身"],
+                text: "所以我進了房間。只有我和我媽的遺體躺在那張床上。我開始禱告。然後發生了一件我這輩子永遠不會忘記的事。\n\n我聽到一個聲音。\n\n不是透過空氣傳來的聲音——而是像從頭到腳充滿我全身的東西。一種穿透我整個身體的同在。而且比我聽過的任何東西都更清楚，比任何喇叭或音響系統都更清楚。"
+            },
+            en: {
+                title: "Alone in the Hospital Room",
+                bullets: ["Entered room alone", "Began praying", "Unexpected encounter", "A voice filled my whole body"],
+                text: "So I went into the room. It was just me and my mom's body lying there on the table. I started to pray. And then something happened that I will never forget for the rest of my life.\n\nI heard a voice.\n\nIt wasn't an audible voice coming through the air — it was more like something that filled me from my head to my toes. A presence that resonated through my entire body. And it was clearer than anything I've ever heard, clearer than any speaker or sound system."
+            }
+        },
+        {
+            cn: {
+                title: "「為什麼在死人中找活人呢？」",
+                bullets: ["聽到清楚的內在聲音", "訊息重複", "「她已經復活了」", "「她的工作在這裡已經完成」"],
+                text: "那個聲音說：\n\n「為什麼在死人中找活人呢？」\n\n我看著我媽的遺體，試著理解。那個聲音又重複：\n\n「為什麼在死人中找活人呢？她已經復活了。她已經復活，正如耶穌應許的。」\n\n我整個人呆住了。完全呆住了。這無可否認是真實的。我身體感覺得到。我內心聽到了。我知道這不是我的想像。\n\n然後，當我再看她的遺體一次，我又聽到那個聲音：\n\n「她的工作在這裡已經完成了。她已經復活了。」\n\n這些就是我聽到的確切話語。"
+            },
+            en: {
+                title: "\"Why Are You Seeking the Living Among the Dead?\"",
+                bullets: ["Heard clear internal voice", "Message repeated", "\"She is risen\"", "\"Her work is done here\""],
+                text: "And the voice said:\n\n\"Why are you seeking the living among the dead?\"\n\nI looked at my mom's body, trying to understand. And the voice repeated:\n\n\"Why are you seeking the living among the dead? She is risen. She is risen just as Jesus promised.\"\n\nI was stunned. Completely stunned. It was unmistakably real. I felt it physically. I heard it internally. I knew it wasn't my imagination.\n\nAnd then, as I looked at her body one more time, I heard the voice again:\n\n\"Her work is done here. She is risen.\"\n\nThose were the exact words I heard."
+            }
+        },
+        {
+            cn: {
+                title: "連結到路加福音24章",
+                bullets: ["立刻想起路加福音24:5", "跟天使說的話一樣", "這節經文變得深刻個人化", "後來跟家人分享"],
+                text: "當我在醫院聽到那個聲音——「為什麼在死人中找活人呢？」——我立刻想起一段從小就知道的經文。在路加福音24:5的復活節故事裡，當那些婦女來到耶穌的墳墓，天使說：「為什麼在死人中找活人呢？祂不在這裡，已經復活了。」我從小聽過這節經文無數次，但當這些話跟我媽的離世連結起來，跟她在基督裡復活的生命連結起來，這節經文對我來說變得比以前更美麗、更有意義。\n\n後來，我跟我爸和兄弟們分享了發生的事。他們聽了說：「好，這很酷。」但我不確定他們是否真的相信。但對我來說，這絕對是真實的。"
+            },
+            en: {
+                title: "Connecting It to Luke 24",
+                bullets: ["Immediately recalled Luke 24:5", "Same message the angels spoke", "Verse became deeply personal", "Shared with family afterward"],
+                text: "When I heard that voice in the hospital — \"Why are you seeking the living among the dead?\" — it instantly brought me back to a passage I had known since childhood. In the Easter story from Luke 24:5, when the women came to Jesus' tomb, the angels said, \"Why do you seek the living among the dead? He is not here, but is risen.\" I had heard that verse countless times growing up, but when those words became connected to my mom's own passing, and to the reality of her resurrection life with Christ, that verse became even more beautiful and meaningful to me than ever before.\n\nLater, I shared what happened with my dad and my brothers. They listened and said, \"Okay, that's cool,\" but I'm not sure whether they really believed it. But for me, it was absolutely real."
+            }
+        },
+        {
+            cn: {
+                title: "帶著盼望哀傷",
+                bullets: ["經歷平安而非絕望", "確信她在基督裡活著", "信仰的個人確認", "我關於神真實的故事"],
+                text: "在整個喪禮和哀傷的過程中，我發現一件事：我哀傷的方式不一樣。我沒有被壓垮，反而為我媽感到喜樂。平安。釋放。確信她活著——真正地活著——在基督裡。\n\n相信耶穌有各種理由——理性的、情感的、歷史的。但也有神給我們的真實經歷。這就是我的。無可否認。它確認了聖經所教導關於生命、死亡和復活的一切。\n\n這就是我的故事。"
+            },
+            en: {
+                title: "Grieving with Hope",
+                bullets: ["Experienced peace instead of despair", "Confidence she is alive in Christ", "Personal confirmation of faith", "My story of God's reality"],
+                text: "And through the whole funeral and grieving process, I realized something: I grieved differently. Instead of being crushed, I felt joy for my mom. Peace. Relief. Confidence that she was alive — truly alive — in Christ.\n\nThere are all kinds of reasons to believe in Jesus — intellectual reasons, emotional reasons, historical reasons. But there are also real experiences that God gives us. And this was mine. It was undeniable. And it confirmed everything the Bible teaches about life, death, and resurrection.\n\nThat's my story."
+            }
+        }
+    ];
+
+    let currentSlide = 1;
+    const totalSlides = slidesData.length;
+
+    function renderSlides() {
+        const container = document.getElementById('slides');
+        const quickNav = document.getElementById('quickNav');
+        
+        let html = '';
+        let dotsHtml = '';
+        
+        slidesData.forEach((slide, index) => {
+            const num = index + 1;
+            html += `
+                <div class="slide-page" id="slide-${num}" data-slide="${num}">
+                    <span class="slide-number">第 ${num} 頁 / Slide ${num}</span>
+                    
+                    <div class="card card-cn">
+                        <div class="card-label">中文</div>
+                        <h2 class="card-title">${slide.cn.title}</h2>
+                        <ul class="bullets">
+                            ${slide.cn.bullets.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                        <div class="speaking-text" id="text-cn-${num}">${slide.cn.text.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    
+                    <div class="card card-en">
+                        <div class="card-label">English</div>
+                        <h2 class="card-title">${slide.en.title}</h2>
+                        <ul class="bullets">
+                            ${slide.en.bullets.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                        <div class="speaking-text" id="text-en-${num}">${slide.en.text.replace(/\n/g, '<br>')}</div>
+                    </div>
+                </div>
+            `;
+            
+            dotsHtml += `<div class="quick-dot" data-slide="${num}"></div>`;
+        });
+        
+        container.innerHTML = html;
+        quickNav.innerHTML = dotsHtml;
+    }
+
+    function goToSlide(num) {
+        if (num < 1 || num > totalSlides) return;
+        
+        currentSlide = num;
+        const el = document.getElementById(`slide-${num}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('counter').textContent = `${currentSlide} / ${totalSlides}`;
+        document.getElementById('prevBtn').disabled = currentSlide === 1;
+        document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        document.getElementById('progress').style.width = `${(currentSlide / totalSlides) * 100}%`;
+        
+        document.querySelectorAll('.quick-dot').forEach(dot => {
+            dot.classList.toggle('active', parseInt(dot.dataset.slide) === currentSlide);
+        });
+    }
+
+    // Intersection Observer to track current slide
+    function setupScrollTracking() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                    currentSlide = parseInt(entry.target.dataset.slide);
+                    updateUI();
+                }
+            });
+        }, {
+            threshold: 0.3,
+            rootMargin: '-80px 0px -50% 0px'
+        });
+        
+        document.querySelectorAll('.slide-page').forEach(slide => {
+            observer.observe(slide);
+        });
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            goToSlide(currentSlide + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            goToSlide(currentSlide - 1);
+        }
+    });
+
+    // Initialize
+    renderSlides();
+    setupScrollTracking();
+    updateUI();
+    
+    // iOS-compatible event handlers
+    document.getElementById('prevBtn').addEventListener('touchend', function(e) {
+        e.preventDefault();
+        goToSlide(currentSlide - 1);
+    });
+    document.getElementById('prevBtn').addEventListener('click', function(e) {
+        goToSlide(currentSlide - 1);
+    });
+    
+    document.getElementById('nextBtn').addEventListener('touchend', function(e) {
+        e.preventDefault();
+        goToSlide(currentSlide + 1);
+    });
+    document.getElementById('nextBtn').addEventListener('click', function(e) {
+        goToSlide(currentSlide + 1);
+    });
+    
+    // Quick dot navigation
+    document.querySelectorAll('.quick-dot').forEach(dot => {
+        dot.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            goToSlide(parseInt(this.dataset.slide));
+        });
+        dot.addEventListener('click', function(e) {
+            goToSlide(parseInt(this.dataset.slide));
+        });
+    });
+    </script>
+</body>
+</html>
